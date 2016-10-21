@@ -52,7 +52,7 @@ shinyServer(function(input, output) {
         f = r
         l = which(r$Sample == '5.0 ppb ME Check Std')
         
-        for (i in 3:nrow(r)) {
+        for (i in 3:(nrow(r))-1) {
             orig = as.numeric(f[i, c(7:ncol(r))])
             index1 = max(l[ l<i ])
             index2 = min(l[ l>i ])
@@ -66,10 +66,10 @@ shinyServer(function(input, output) {
             
             m = (ch1-ch2) / ch1 / (index1-index2) # relative change in check standard
             
-            f[i, c(7:ncol(f))] = orig * (1+ m * (i-index1))
+            f[i, c(7:ncol(f))] = orig * (1 - m * (i-index1))
         }
+        f[nrow(r),] = f[l[1],]
         f
-        
     })
     
     normData = reactive({
@@ -85,8 +85,8 @@ shinyServer(function(input, output) {
         ch1 = as.numeric(f[l[1],c(7:ncol(f))])
         
         for (i in l[2]:nrow(f)) {
-            normalized[i,c(7:ncol(f))] = as.numeric(f[i,c(7:ncol(f))]) *
-                as.numeric(f[max(l[l<i]), c(7:ncol(f))]) / ch1
+            normalized[i,c(7:ncol(f))] = as.numeric(f[i,c(7:ncol(f))]) * ch1 /
+                as.numeric(f[max(l[l<=i]), c(7:ncol(f))])
         }
         normalized
     })
