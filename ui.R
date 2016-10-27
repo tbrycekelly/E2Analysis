@@ -19,7 +19,7 @@ shinyUI(fluidPage(
             fileInput('raw', 'Select Data File'),
             hr(),
             p(tags$strong("Next apply settings:")),
-            p("To be added..."),
+            checkboxInput('meta',"Has 2 Lines of Metadata", T),
             hr(),
             p(strong("Download Data after checking tabs.")),
             downloadButton("dow", "Download Results")
@@ -39,6 +39,10 @@ shinyUI(fluidPage(
                 ),
                 tabPanel("Normalized Data",
                          dataTableOutput('norm')
+                ),
+                tabPanel("Graphical Preview",
+                         sliderInput('whichCheck', "Select Isotope", 1, 50, 10),
+                         plotOutput("previewPlot")
                 )
             )
         )

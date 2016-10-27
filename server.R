@@ -16,8 +16,11 @@ shinyServer(function(input, output) {
         if (is.null(infile)) {
             return(NULL)
         }
-        
-        r = read.xlsx(infile$datapath)[-c(1,2),]
+        if (input$meta) {
+            r = read.xlsx(infile$datapath)[-c(1,2),]
+        } else {
+            r = read.xlsx(infile$datapath)
+        }
         colnames(r) = r[1,]
         r = r[-1,]
         r
@@ -122,4 +125,28 @@ shinyServer(function(input, output) {
         }
     )
     
+    output$previewPlot = renderPlot({
+        if (is.null(normData())) {
+            return(NULL)
+        }
+        r = raw()
+        l = which(r$Sample == '5.0 ppb ME Check Std')
+        i = as.numeric(input$whichCheck) + 6
+        name = colnames(r)[i]
+        r = as.numeric(r[,i])
+        f = finalData()
+        f = as.numeric(f[,i])
+        n = normData()
+        n = as.numeric(n[,i])
+        
+        
+        x = c(1:length(l))
+        
+        plot(x, r[l], xlab="Check Standard", ylim=c(0.8*min(r[l]),1.2*max(r[l])), ylab=paste0(name," CPS"))
+        points(x, f[l], pch=2, col='#af0000')
+        points(x, n[l], pch=16, col='#ff0000')
+        lines(x, n[l], pch=16, col='#ff000070')
+        legend(1, 0.5*max(r[l]) + 0.5*min(r[l]), c("Raw","Drifted", "Normalized"), col=c("black", '#af0000', '#ff0000'), pch=c(1,2,16))
+        
+    })
 })
